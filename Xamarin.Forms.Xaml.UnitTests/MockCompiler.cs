@@ -4,6 +4,7 @@ using System.Linq;
 
 using Xamarin.Forms.Build.Tasks;
 using Mono.Cecil;
+using Xamarin.Forms.MSBuild.UnitTests;
 
 namespace Xamarin.Forms.Xaml.UnitTests
 {
@@ -29,12 +30,12 @@ namespace Xamarin.Forms.Xaml.UnitTests
 				KeepXamlResources = true,
 				OptimizeIL = true,
 				DebugSymbols = false,
-				ReadOnly = true,
-				Type = type.FullName
+				ValidateOnly = true,
+				Type = type.FullName,
+				BuildEngine = new MSBuild.UnitTests.DummyBuildEngine()
 			};
 
-			IList<Exception> exceptions;
-			if (xamlc.Execute(out exceptions) || exceptions == null || !exceptions.Any()) {
+			if (xamlc.Execute(out IList<Exception> exceptions) || exceptions == null || !exceptions.Any()) {
 				methdoDefinition = xamlc.InitCompForType;
 				return;
 			}

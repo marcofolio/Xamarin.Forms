@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Media;
+using WControl = System.Windows.Controls.Control;
 
 namespace Xamarin.Forms.Platform.WPF
 {
@@ -35,7 +31,8 @@ namespace Xamarin.Forms.Platform.WPF
 				// Update control property 
 				UpdateText();
 				UpdatePlaceholder();
-				UpdateAlignment();
+				UpdateHorizontalTextAlignment();
+				UpdateVerticalTextAlignment();
 				UpdateFont();
 				UpdatePlaceholderColor();
 				UpdateTextColor();
@@ -59,7 +56,9 @@ namespace Xamarin.Forms.Platform.WPF
 			else if (e.PropertyName == SearchBar.FontSizeProperty.PropertyName)
 				UpdateFont();
 			else if (e.PropertyName == SearchBar.HorizontalTextAlignmentProperty.PropertyName)
-				UpdateAlignment();
+				UpdateHorizontalTextAlignment();
+			else if (e.PropertyName == SearchBar.VerticalTextAlignmentProperty.PropertyName)
+				UpdateVerticalTextAlignment();
 			else if (e.PropertyName == SearchBar.PlaceholderColorProperty.PropertyName)
 				UpdatePlaceholderColor();
 			else if (e.PropertyName == SearchBar.TextColorProperty.PropertyName)
@@ -77,9 +76,14 @@ namespace Xamarin.Forms.Platform.WPF
 			((IElementController)Element).SetValueFromRenderer(SearchBar.TextProperty, Control.Text);
 		}
 
-		void UpdateAlignment()
+		void UpdateHorizontalTextAlignment()
 		{
 			Control.TextAlignment = Element.HorizontalTextAlignment.ToNativeTextAlignment();
+		}
+
+		void UpdateVerticalTextAlignment()
+		{
+			Control.VerticalContentAlignment = Element.VerticalTextAlignment.ToNativeVerticalAlignment();
 		}
 
 		void UpdateFont()
@@ -99,11 +103,11 @@ namespace Xamarin.Forms.Platform.WPF
 
 			if (searchbarIsDefault)
 			{
-				Control.ClearValue(System.Windows.Controls.Control.FontStyleProperty);
-				Control.ClearValue(System.Windows.Controls.Control.FontSizeProperty);
-				Control.ClearValue(System.Windows.Controls.Control.FontFamilyProperty);
-				Control.ClearValue(System.Windows.Controls.Control.FontWeightProperty);
-				Control.ClearValue(System.Windows.Controls.Control.FontStretchProperty);
+				Control.ClearValue(WControl.FontStyleProperty);
+				Control.ClearValue(WControl.FontSizeProperty);
+				Control.ClearValue(WControl.FontFamilyProperty);
+				Control.ClearValue(WControl.FontWeightProperty);
+				Control.ClearValue(WControl.FontStretchProperty);
 			}
 			else
 				Control.ApplyFont(searchbar);
@@ -113,7 +117,7 @@ namespace Xamarin.Forms.Platform.WPF
 
 		void UpdatePlaceholder()
 		{
-			//Control.Hint = Element.Placeholder ?? DefaultPlaceholder;
+			Control.PlaceholderText = Element.Placeholder ?? DefaultPlaceholder;
 		}
 
 		void UpdatePlaceholderColor()
@@ -123,9 +127,11 @@ namespace Xamarin.Forms.Platform.WPF
 			if (placeholderColor.IsDefault)
 			{
 				if (_defaultPlaceholderColorBrush == null)
-					return;
-
+				{
+					_defaultPlaceholderColorBrush = (Brush)WControl.ForegroundProperty.GetMetadata(typeof(FormsTextBox)).DefaultValue;
+				}
 				Control.PlaceholderForegroundBrush = _defaultPlaceholderColorBrush;
+				return;
 			}
 
 			if (_defaultPlaceholderColorBrush == null)
